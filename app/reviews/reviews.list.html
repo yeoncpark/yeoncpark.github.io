@@ -1,0 +1,6 @@
+<h2>All Reviews</h2>
+<ul>
+  <li ng-repeat="review in reviews">
+    <a ui-sref="reviews.detail({reviewId:review.id})">{{review.name}}</a>
+  </li>
+</ul>    

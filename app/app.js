@@ -1,15 +1,18 @@
 // Make sure to include the `ui.router` module as a dependency
 angular.module('uiRouterSample', [
-  'uiRouterSample.contacts',
-  'uiRouterSample.contacts.service',
+  'uiRouterSample.reviews',
+  'uiRouterSample.reviews.service',
   'uiRouterSample.utils.service',
+  'uiRouterSample.authentication',
+  'uiRouterSample.authentication.service',
   'ui.router', 
-  'ngAnimate'
+  'ngAnimate',
+  'ngCookies'
 ])
 
 .run(
-  [          '$rootScope', '$state', '$stateParams',
-    function ($rootScope,   $state,   $stateParams) {
+  [          '$rootScope', '$state', '$stateParams', '$cookieStore', '$http',
+    function ($rootScope,   $state,   $stateParams, $cookieStore, $http) {
 
     // It's very handy to add references to $state and $stateParams to the $rootScope
     // so that you can access them from any scope within your applications.For example,
@@ -17,6 +20,24 @@ angular.module('uiRouterSample', [
     // to active whenever 'contacts.list' or one of its decendents is active.
     $rootScope.$state = $state;
     $rootScope.$stateParams = $stateParams;
+
+    // keep user logged in after page refresh
+    $rootScope.globals = $cookieStore.get('globals') || {};
+    if ($rootScope.globals.currentUser) {
+        $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata; // jshint ignore:line
+    }
+
+    $rootScope.$on('$locationChangeStart', function (event, next, current) {
+    
+        //$rootScope.isLogin = true;
+        if ($state.current.name !== 'login' && !$rootScope.globals.currentUser) {
+          $state.go('login');
+          //$rootScope.isLogin = false;
+        //} else if (!$rootScope.globals.currentUser){
+        //  $rootScope.isLogin = false;
+        }
+    });
+
     }
   ]
 )
@@ -34,8 +55,8 @@ angular.module('uiRouterSample', [
 
         // The `when` method says if the url is ever the 1st param, then redirect to the 2nd param
         // Here we are just setting up some convenience urls.
-        .when('/c?id', '/contacts/:id')
-        .when('/user/:id', '/contacts/:id')
+        .when('/r?id', '/reviews/:id')
+        .when('/user/:id', '/reviews/:id')
 
         // If the url is ever invalid, e.g. '/asdf', then redirect to '/' aka the home state
         .otherwise('/');
@@ -62,11 +83,8 @@ angular.module('uiRouterSample', [
           // For top level states, like this one, the parent template is
           // the index.html file. So this template will be inserted into the
           // ui-view within index.html.
-          template: '<p class="lead">Welcome to the UI-Router Demo</p>' +
-            '<p>Use the menu above to navigate. ' +
-            'Pay attention to the <code>$state</code> and <code>$stateParams</code> values below.</p>' +
-            '<p>Click these links—<a href="#/c?id=1">Alice</a> or ' +
-            '<a href="#/user/42">Bob</a>—to see a url redirect in action.</p>'
+          template: '<p class="lead">DataSpre Home</p>' +
+            '<p>Home contents goese here.</p>'
 
         })
 
@@ -81,13 +99,7 @@ angular.module('uiRouterSample', [
           templateProvider: ['$timeout',
             function (        $timeout) {
               return $timeout(function () {
-                return '<p class="lead">UI-Router Resources</p><ul>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router/tree/master/sample">Source for this Sample</a></li>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router">Github Main Page</a></li>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router#quick-start">Quick Start</a></li>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router/wiki">In-Depth Guide</a></li>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router/wiki/Quick-Reference">API Reference</a></li>' +
-                       '</ul>';
+                return '<p class="lead">About DataSphere</p><br/>About info goes here.';
               }, 100);
             }]
         })

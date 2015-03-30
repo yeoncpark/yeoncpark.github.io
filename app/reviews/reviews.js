@@ -1,4 +1,4 @@
-angular.module('uiRouterSample.contacts', [
+ angular.module('uiRouterSample.reviews', [
   'ui.router'
 ])
   
@@ -9,19 +9,19 @@ angular.module('uiRouterSample.contacts', [
         //////////////
         // Contacts //
         //////////////
-        .state('contacts', {
+        .state('reviews', {
 
           // With abstract set to true, that means this state can not be explicitly activated.
           // It can only be implicitly activated by activating one of its children.
           abstract: true,
 
           // This abstract state will prepend '/contacts' onto the urls of all its children.
-          url: '/contacts',
+          url: '/reviews',
 
           // Example of loading a template from a file. This is also a top level state,
           // so this template file will be loaded and then inserted into the ui-view
           // within index.html.
-          templateUrl: 'app/contacts/contacts.html',
+          templateUrl: 'app/reviews/reviews.html',
 
           // Use `resolve` to resolve any asynchronous controller dependencies
           // *before* the controller is instantiated. In this case, since contacts
@@ -29,28 +29,28 @@ angular.module('uiRouterSample.contacts', [
           // resolved before instantiation. Non-promise return values are considered
           // to be resolved immediately.
           resolve: {
-            contacts: ['contacts',
-              function( contacts){
-                return contacts.all();
+            reviews: ['reviews',
+              function(reviews){
+                return reviews.all();
               }]
           },
 
           // You can pair a controller to your template. There *must* be a template to pair with.
-          controller: ['$scope', '$state', 'contacts', 'utils',
-            function (  $scope,   $state,   contacts,   utils) {
+          controller: ['$scope', '$state', 'reviews', 'utils', '$rootScope',
+            function (  $scope,   $state,   reviews,   utils, $rootScope) {
 
               // Add a 'contacts' field in this abstract parent's scope, so that all
               // child state views can access it in their scopes. Please note: scope
               // inheritance is not due to nesting of states, but rather choosing to
               // nest the templates of those states. It's normal scope inheritance.
-              $scope.contacts = contacts;
+              $scope.reviews = reviews;
 
               $scope.goToRandom = function () {
-                var randId = utils.newRandomKey($scope.contacts, "id", $state.params.contactId);
+                var randId = utils.newRandomKey($scope.reviews, "id", $state.params.reviewId);
 
                 // $state.go() can be used as a high level convenience method
                 // for activating a state programmatically.
-                $state.go('contacts.detail', { contactId: randId });
+                $state.go('reviews.detail', { reviewId: randId });
               };
             }]
         })
@@ -61,7 +61,7 @@ angular.module('uiRouterSample.contacts', [
 
         // Using a '.' within a state name declares a child within a parent.
         // So you have a new state 'list' within the parent 'contacts' state.
-        .state('contacts.list', {
+        .state('reviews.list', {
 
           // Using an empty url means that this child state will become active
           // when its parent's url is navigated to. Urls of child states are
@@ -73,7 +73,7 @@ angular.module('uiRouterSample.contacts', [
           // template will be inserted into the ui-view within this state's
           // parent's template; so the ui-view within contacts.html. This is the
           // most important thing to remember about templates.
-          templateUrl: 'app/contacts/contacts.list.html'
+          templateUrl: 'app/reviews/reviews.list.html'
         })
 
         ///////////////////////
@@ -82,7 +82,7 @@ angular.module('uiRouterSample.contacts', [
 
         // You can have unlimited children within a state. Here is a second child
         // state within the 'contacts' parent state.
-        .state('contacts.detail', {
+        .state('reviews.detail', {
 
           // Urls can have parameters. They can be specified like :param or {param}.
           // If {} is used, then you can also specify a regex pattern that the param
@@ -95,7 +95,7 @@ angular.module('uiRouterSample.contacts', [
           // So its url will end up being '/contacts/{contactId:[0-9]{1,4}}'. When the
           // url becomes something like '/contacts/42' then this state becomes active
           // and the $stateParams object becomes { contactId: 42 }.
-          url: '/{contactId:[0-9]{1,4}}',
+          url: '/{reviewId:[0-9]{1,4}}',
 
           // If there is more than a single ui-view in the parent template, or you would
           // like to target a ui-view from even higher up the state tree, you can use the
@@ -110,17 +110,17 @@ angular.module('uiRouterSample.contacts', [
 
             // So this one is targeting the unnamed view within the parent state's template.
             '': {
-              templateUrl: 'app/contacts/contacts.detail.html',
+              templateUrl: 'app/reviews/reviews.detail.html',
               controller: ['$scope', '$stateParams', 'utils',
                 function (  $scope,   $stateParams,   utils) {
-                  $scope.contact = utils.findById($scope.contacts, $stateParams.contactId);
+                  $scope.review = utils.findById($scope.reviews, $stateParams.reviewId);
                 }]
             },
 
             // This one is targeting the ui-view="hint" within the unnamed root, aka index.html.
             // This shows off how you could populate *any* view within *any* ancestor state.
             'hint@': {
-              template: 'This is contacts.detail populating the "hint" ui-view'
+              template: 'This is reviews.detail populating the "hint" info.'
             },
 
             // This one is targeting the ui-view="menuTip" within the parent state's template.
@@ -132,7 +132,7 @@ angular.module('uiRouterSample.contacts', [
                   // This is just to demonstrate that $stateParams injection works for templateProvider.
                   // $stateParams are the parameters for the new state we're transitioning to, even
                   // though the global '$stateParams' has not been updated yet.
-                  return '<hr><small class="muted">Contact ID: ' + $stateParams.contactId + '</small>';
+                  return '<hr><small class="muted">Review ID: ' + $stateParams.reviewId + '</small>';
                 }]
             }
           }
@@ -142,7 +142,7 @@ angular.module('uiRouterSample.contacts', [
         // Contacts > Detail > Item //
         //////////////////////////////
 
-        .state('contacts.detail.item', {
+        .state('reviews.detail.item', {
 
           // So following what we've learned, this state's full url will end up being
           // '/contacts/{contactId}/item/:itemId'. We are using both types of parameters
@@ -154,10 +154,10 @@ angular.module('uiRouterSample.contacts', [
             // We wouldn't have to do it this way if we didn't also want to set the 'hint' view below.
             // We could instead just set templateUrl and controller outside of the view obj.
             '': {
-              templateUrl: 'app/contacts/contacts.detail.item.html',
+              templateUrl: 'app/reviews/reviews.detail.item.html',
               controller: ['$scope', '$stateParams', '$state', 'utils',
                 function (  $scope,   $stateParams,   $state,   utils) {
-                  $scope.item = utils.findById($scope.contact.items, $stateParams.itemId);
+                  $scope.item = utils.findById($scope.review.items, $stateParams.itemId);
 
                   $scope.edit = function () {
                     // Here we show off go's ability to navigate to a relative state. Using '^' to go upwards
@@ -170,7 +170,7 @@ angular.module('uiRouterSample.contacts', [
 
             // Here we see we are overriding the template that was set by 'contacts.detail'
             'hint@': {
-              template: ' This is contacts.detail.item overriding the "hint" ui-view'
+              template: ' This is reviews.detail.item overriding the "hint" info.'
             }
           }
         })
@@ -182,17 +182,17 @@ angular.module('uiRouterSample.contacts', [
         // Notice that this state has no 'url'. States do not require a url. You can use them
         // simply to organize your application into "places" where each "place" can configure
         // only what it needs. The only way to get to this state is via $state.go (or transitionTo)
-        .state('contacts.detail.item.edit', {
+        .state('reviews.detail.item.edit', {
           views: {
 
             // This is targeting the unnamed view within the 'contacts.detail' state
             // essentially swapping out the template that 'contacts.detail.item' had
             // inserted with this state's template.
-            '@contacts.detail': {
-              templateUrl: 'app/contacts/contacts.detail.item.edit.html',
+            '@reviews.detail': {
+              templateUrl: 'app/reviews/reviews.detail.item.edit.html',
               controller: ['$scope', '$stateParams', '$state', 'utils',
                 function (  $scope,   $stateParams,   $state,   utils) {
-                  $scope.item = utils.findById($scope.contact.items, $stateParams.itemId);
+                  $scope.item = utils.findById($scope.review.items, $stateParams.itemId);
                   $scope.done = function () {
                     // Go back up. '^' means up one. '^.^' would be up twice, to the grandparent.
                     $state.go('^', $stateParams);
